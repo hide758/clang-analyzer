@@ -1,11 +1,13 @@
 from django.core.management.base import BaseCommand
 from ...models import Function, FunctionRelation
 
+import logging
 import shlex
 import clang.cindex
 import csv
 import pathlib
-import pprint
+
+logger = logging.getLogger('FunctionSurvey')
 
 FunctionDeclear = {}
 AnalysedFunctionList = []
@@ -141,8 +143,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
     AnalysisedFunction.File = f"{cursor.location.file.name}"
     AnalysisedFunction.Line = f"{cursor.location.line}"
 
-    print("===")
-    print(AnalysisedFunction.FunctionName)
+    logger.info(f"analysing {AnalysisedFunction.FunctionName} ...")
 
     # 子ノードを解析
     isPrototype = True
@@ -185,6 +186,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
             }
         )
 
+    # register function relations
     for func in AnalysisedFunction.CallFunctions:
         fr = FunctionRelation()
         fr.call_from = profile
@@ -197,7 +199,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
     AnalysisedFunction.StorageClass = cursor.storage_class
 
     # 呼び出し関数の判定
-    CallFuncType = [FunctionDeclear[func].StorageClass.name for func in AnalysisedFunction.CallFunctions]
+    CallFuncType = [FunctionDeclear[func["Name"]].StorageClass.name for func in AnalysisedFunction.CallFunctions]
     if "EXTERN" in CallFuncType:
         AnalysisedFunction.Status["call_extern"] = "○"
     if "STATIC" in CallFuncType:
@@ -336,13 +338,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
+            logger.info("Function Survey Start")
+            logger.info(f" target file: {options['target-file']}")
+            logger.info(f" clang args : {options['clang_args']}")
+            
             Survey(
                 TargetSourceFile = options["target-file"],
                 ClangArgs = options["clang_args"])
 #            WriteCsv("all.csv")
             
         except Exception as e:
-            print(e)
+            logger.error(f"exception {e}", exc_info=True)
             pass
 
     def add_arguments(self, parser):

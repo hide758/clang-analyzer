@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -126,3 +127,47 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# ログ設定
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # 既存のロガーを無効化しない
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        # コンソール出力用ハンドラー
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        # ファイル出力用ハンドラー（プロジェクトルートに django.log として出力）
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': Path(BASE_DIR) / 'django.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        # Django 内部や他のアプリで利用する場合
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',  # INFO 以上のログレベルを記録
+            'propagate': True,
+        },
+        # プロジェクト内の自作アプリ用
+        'FunctionSurvey': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',  # DEBUG 以上のログを記録
+            'propagate': False,
+        },
+    },
+}
