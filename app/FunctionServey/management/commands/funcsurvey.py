@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+from ...models import Function, FunctionRelation
 
+import shlex
 import clang.cindex
 import csv
 import pathlib
@@ -72,7 +74,10 @@ class FunctionDecl:
 
     def AddCallFunction(self, cursor:clang.cindex.Cursor):
         if cursor.spelling not in self.CallFunctions:
-            self.CallFunctions.append(cursor.spelling)
+            self.CallFunctions.append({
+                "Name"  : cursor.spelling,
+                "Line"  : cursor.location.line,
+                })
 
 
     def __str__(self):
@@ -110,7 +115,6 @@ def ProcParse(cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
     if cursor.kind.name == "CALL_EXPR":
         AnalysisedFunction.AddCallFunction(cursor)
 
-
     for child in cursor.get_children():
         ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
 
@@ -141,6 +145,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
     print(AnalysisedFunction.FunctionName)
 
     # 子ノードを解析
+    isPrototype = True
     for child in cursor.get_children():
         # 引数の解析
         if child.kind.name == "PARM_DECL":
@@ -151,6 +156,42 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
             ProcCompoundStmt(
                 cursor=child,
                 AnalysisedFunction=AnalysisedFunction)
+            isPrototype = False
+
+    if isPrototype == True:
+        profile, created = Function.objects.get_or_create(
+            name = AnalysisedFunction.FunctionName,
+            defaults = {
+                "return_type" : cursor.result_type.spelling,
+                "arguments" : AnalysisedFunction.GetArgs(),
+                "file" : AnalysisedFunction.File,
+                "line" : AnalysisedFunction.Line,
+                "static" : cursor.is_static_method(),
+                "const" : cursor.is_const_method(),
+                "is_prototype" : isPrototype
+            }
+        )
+    else:
+        profile, created = Function.objects.update_or_create(
+            name = AnalysisedFunction.FunctionName,
+            defaults = {
+                "return_type" : cursor.result_type.spelling,
+                "arguments" : AnalysisedFunction.GetArgs(),
+                "file" : AnalysisedFunction.File,
+                "line" : AnalysisedFunction.Line,
+                "static" : cursor.is_static_method(),
+                "const" : cursor.is_const_method(),
+                "is_prototype" : isPrototype
+            }
+        )
+
+    for func in AnalysisedFunction.CallFunctions:
+        fr = FunctionRelation()
+        fr.call_from = profile
+        fr.call_to = Function.objects.get(name=func["Name"])
+        fr.line = func["Line"]
+        fr.file = AnalysisedFunction.File
+        fr.save()
 
     # 関数属性(static/extern)記録
     AnalysisedFunction.StorageClass = cursor.storage_class
@@ -207,7 +248,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
     else:
         AnalysedFunctionList.append(AnalysisedFunction)
 
-    pprint.pprint(AnalysisedFunction.Status)
+#    pprint.pprint(AnalysisedFunction.Status)
         
 def dump_node(cursor:clang.cindex.Cursor):
     """ファイル全体を解析する
@@ -232,8 +273,7 @@ def Survey(TargetSourceFile:str, ClangArgs:str):
         TargetSourceFile (str): 対象ファイル
     """    
     index = clang.cindex.Index.create()
-#    translation_unit = index.parse(TargetSourceFile, args=["-I", "usv/inc", "-I", "Green/V800.V517/ansi/", "-D", "SPINDLE"])
-    translation_unit = index.parse(TargetSourceFile, args=[ClangArgs,])
+    translation_unit = index.parse(TargetSourceFile, args=shlex.split(ClangArgs))
     dump_node(translation_unit.cursor)
 
 def WriteCsv(FileName:str):
@@ -297,7 +337,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             Survey(
-                TargetSourceFile = options["target_file"],
+                TargetSourceFile = options["target-file"],
                 ClangArgs = options["clang_args"])
 #            WriteCsv("all.csv")
             
@@ -307,5 +347,4 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--clang-args', nargs='?', default='target', type=str)
-        parser.add_argument('--target-file', nargs='?', default='', type=str)
-        
+        parser.add_argument('target-file', nargs='?', default='', type=str)

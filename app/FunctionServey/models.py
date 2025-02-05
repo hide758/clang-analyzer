@@ -14,6 +14,7 @@ class Function(models.Model):
 
     static = models.BooleanField(default=False)
     const = models.BooleanField(default=False)
+    is_prototype = models.BooleanField(default=True)
 
     created = models.DateTimeField(auto_now=True)
     modified = models.DateTimeField(auto_now_add=True)

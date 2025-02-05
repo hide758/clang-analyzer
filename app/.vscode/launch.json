@@ -12,9 +12,9 @@
             "program": "manage.py",
             "console": "integratedTerminal",
             "args": [
-                "survey",
-                "--target-file", "target/usv/srv/valm.c",
+                "funcsurvey",
                 "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "target/usv/srv/valm.c",
             ]
         }
     ]
