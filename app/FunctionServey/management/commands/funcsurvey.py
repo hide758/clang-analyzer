@@ -160,7 +160,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
             isPrototype = False
 
     if isPrototype == True:
-        profile, created = Function.objects.get_or_create(
+        func_profile, created = Function.objects.get_or_create(
             name = AnalysisedFunction.FunctionName,
             defaults = {
                 "return_type" : cursor.result_type.spelling,
@@ -173,7 +173,7 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
             }
         )
     else:
-        profile, created = Function.objects.update_or_create(
+        func_profile, created = Function.objects.update_or_create(
             name = AnalysisedFunction.FunctionName,
             defaults = {
                 "return_type" : cursor.result_type.spelling,
@@ -188,12 +188,19 @@ def ProcFunctionDecl(cursor:clang.cindex.Cursor):
 
     # register function relations
     for func in AnalysisedFunction.CallFunctions:
-        fr = FunctionRelation()
-        fr.call_from = profile
-        fr.call_to = Function.objects.get(name=func["Name"])
-        fr.line = func["Line"]
-        fr.file = AnalysisedFunction.File
-        fr.save()
+        profile, created = FunctionRelation.objects.get_or_create(
+            call_from = func_profile,
+            call_to = Function.objects.get(name=func["Name"]),
+            line = func["Line"],
+            file = AnalysisedFunction.File,
+
+            defaults = {
+                "call_from" : func_profile,
+                "call_to"   : Function.objects.get(name=func["Name"]),
+                "line"      : func["Line"],
+                "file"      : AnalysisedFunction.File,
+            }
+        )
 
     # 関数属性(static/extern)記録
     AnalysisedFunction.StorageClass = cursor.storage_class
