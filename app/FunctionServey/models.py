@@ -25,6 +25,8 @@ class Function(models.Model):
         return f"{self.name}"
 
 class FunctionRelation(models.Model):
+    """Function Relation Model
+    """
     id = models.AutoField(primary_key=True)
 
     call_from = models.ForeignKey(
@@ -36,6 +38,9 @@ class FunctionRelation(models.Model):
         Function,
         on_delete=models.CASCADE,
         related_name='call_to')
+
+    file = models.TextField()
+    line = models.IntegerField()
 
     created = models.DateTimeField(auto_now=True)
     modified = models.DateTimeField(auto_now_add=True)
