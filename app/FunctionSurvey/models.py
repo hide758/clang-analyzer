@@ -4,7 +4,10 @@ class Project(models.Model):
     """Project Model
     """
     id = models.AutoField(primary_key=True)
-    name = models.TextField()
+    name = models.CharField(
+        max_length = 256,
+        null=True
+    )
 
     class Meta:
         db_table = 'project'
@@ -25,8 +28,13 @@ class Function(models.Model):
         related_name='functioin_project',
         null=True)
     
-    name = models.TextField()
-    return_type = models.TextField()
+    name = models.CharField(
+        max_length = 256
+        )
+    
+    return_type = models.CharField(
+        max_length = 128
+        )
     arguments = models.JSONField()
     file = models.TextField()
     line = models.IntegerField()
