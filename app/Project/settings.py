@@ -163,10 +163,16 @@ LOGGING = {
             'level': 'INFO',  # INFO 以上のログレベルを記録
             'propagate': True,
         },
-        # プロジェクト内の自作アプリ用
+        # survey
+        'Survey': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',  # INFO 以上のログを記録
+            'propagate': False,
+        },
+        # FunctionSurvey
         'FunctionSurvey': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',  # DEBUG 以上のログを記録
+            'level': 'DEBUG',  # INFO 以上のログを記録
             'propagate': False,
         },
     },

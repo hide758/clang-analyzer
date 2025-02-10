@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand
 from ...models import Function, FunctionRelation
+from ...survey import Survey
 
 import logging
-import shlex
-import clang.cindex
 import csv
 import pathlib
+import shlex
+import clang.cindex
 
 logger = logging.getLogger('FunctionSurvey')
 
@@ -273,7 +274,7 @@ def dump_node(cursor:clang.cindex.Cursor):
 
         pass
 
-def Survey(TargetSourceFile:str, ClangArgs:str):
+def Survey__(TargetSourceFile:str, ClangArgs:str):
     """ファイル調査
     対象ファイルを解析する。
     ASTを作成し、関数ノードを取得する。
@@ -340,7 +341,7 @@ def WriteCsv(FileName:str):
             ])
 
 
-class Command(BaseCommand):
+class Command__(BaseCommand):
     help = "関数調査"
 
     def handle(self, *args, **options):
@@ -356,6 +357,36 @@ class Command(BaseCommand):
             
         except Exception as e:
             logger.error(f"exception {e}", exc_info=True)
+            pass
+
+    def add_arguments(self, parser):
+        parser.add_argument('--clang-args', nargs='?', default='target', type=str)
+        parser.add_argument('target-file', nargs='?', default='', type=str)
+
+
+class Command(BaseCommand):
+    help = "関数調査"
+
+    def handle(self, *args, **options):
+        try:
+            logger.info("Function Survey Start")
+            logger.info(f" target file: {options['target-file']}")
+            logger.info(f" clang args : {options['clang_args']}")
+            
+            survey = Survey(
+                TargetSourceFile = options["target-file"],
+                ClangArgs = options["clang_args"]
+            )
+            ret = survey.Survey()
+            logger.info(f" {len(ret)} function(s)")
+
+
+            
+        except Exception as e:
+            logger.error(f"exception {e}", exc_info=True)
+
+
+        finally:
             pass
 
     def add_arguments(self, parser):
