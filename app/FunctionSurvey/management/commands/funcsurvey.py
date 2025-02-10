@@ -5,6 +5,7 @@ from ...survey import Survey
 import logging
 import csv
 import pathlib
+import time
 import shlex
 import clang.cindex
 
@@ -369,6 +370,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
+            start_time = time.time()
+
             logger.info("Function Survey Start")
             logger.info(f" target file: {options['target-file']}")
             logger.info(f" clang args : {options['clang_args']}")
@@ -377,8 +380,8 @@ class Command(BaseCommand):
                 TargetSourceFile = options["target-file"],
                 ClangArgs = options["clang_args"]
             )
-            ret = survey.Survey()
-            logger.info(f" {len(ret)} function(s)")
+            self.Functions = survey.Survey()
+            logger.info(f" {len(self.Functions)} function(s)")
 
 
             
@@ -387,7 +390,7 @@ class Command(BaseCommand):
 
 
         finally:
-            pass
+            logger.debug(f" elapsed time {time.time() - start_time}")
 
     def add_arguments(self, parser):
         parser.add_argument('--clang-args', nargs='?', default='target', type=str)
