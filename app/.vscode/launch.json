@@ -17,15 +17,26 @@
             ]
         },
         {
-            "name": "Python デバッガー: 関数解析",
+            "name": "関数解析",
             "type": "debugpy",
             "request": "launch",
             "program": "manage.py",
             "console": "integratedTerminal",
             "args": [
                 "funcsurvey",
+                "--project", "MDS-E-BD SPINDLE",
                 "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
                 "target/usv/srv/valm.c",
+            ]
+        },
+        {
+            "name": "DBクリア",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "cleardb",
             ]
         }
     ]
