@@ -1,15 +1,16 @@
+from django.db import transaction
 from django.core.management.base import BaseCommand
-from ...models import Function, FunctionRelation
+from ...models import Project, Function, FunctionRelation
 from ...survey import Survey
 
 import logging
 import csv
 import pathlib
-import time
+import datetime
 import shlex
 import clang.cindex
 
-logger = logging.getLogger('FunctionSurvey')
+logger = logging.getLogger('Survey')
 
 FunctionDeclear = {}
 AnalysedFunctionList = []
@@ -367,21 +368,96 @@ class Command__(BaseCommand):
 
 class Command(BaseCommand):
     help = "関数調査"
+    _Project = None
+
+    def _write_db(self):
+        # write project table
+        project_profile, created = Project.objects.get_or_create(
+            name = self._Project,
+            defaults = {}
+        )
+
+        # select write functions
+        # fillter non-prototype functions
+        write_func = []
+        for func in self._Functions:
+            # target function
+            if self._Functions[func].IsPrototype == False:
+
+                # add call functions from target function
+                for call_to_func in self._Functions[func].CallFunctions:
+                    if call_to_func["Name"] not in write_func:
+                        write_func.append(call_to_func["Name"])
+                
+                # add target function
+                if func not in write_func:
+                    write_func.append(func)
+
+        # atomic session
+        with transaction.atomic():
+            # write & get record from function table
+            func_profile = {}
+            for func in write_func:
+                # append records and get record profile
+                func_profile[func], created = Function.objects.get_or_create(
+                    project = project_profile,
+                    name = func,
+                    defaults = {
+                        "project"       : project_profile,
+                        "return_type"   : self._Functions[func].ReturnType,
+                        "arguments"     : self._Functions[func].Args,
+                        "file"          : self._Functions[func].File,
+                        "line"          : self._Functions[func].Line,
+                        "static"        : self._Functions[func].IsStatic,
+                        "const"         : self._Functions[func].IsConst,
+                        "is_prototype"  : self._Functions[func].IsPrototype
+                    }
+                )
+
+            # write function relation table
+            for base_func in write_func:
+                # scan call other funcsion from base function
+                for call_to_func in self._Functions[base_func].CallFunctions:
+                    # add function relation
+                    #  - due to db textfield compare unexpected , file name isn't include compare keywords
+                    call_func_profile, created = FunctionRelation.objects.get_or_create(
+                        project = project_profile,
+                        call_from = func_profile[base_func],
+                        call_to = func_profile[call_to_func["Name"]],
+                        line = call_to_func["Line"],
+                        defaults = {
+                            "project"   : project_profile,
+                            "call_from" : func_profile[base_func],
+                            "call_to"   : func_profile[call_to_func["Name"]],
+                            "line"      : call_to_func["Line"],
+                            "file"      : self._Functions[base_func].File,
+                        }
+                    )
+
+        pass        
 
     def handle(self, *args, **options):
         try:
-            start_time = time.time()
+            start_time = datetime.datetime.now()
 
             logger.info("Function Survey Start")
+            logger.info(f" Project    : {options['project']}")
             logger.info(f" target file: {options['target-file']}")
             logger.info(f" clang args : {options['clang_args']}")
             
+            self._Project = options['project']
+
+            # survey target file
             survey = Survey(
                 TargetSourceFile = options["target-file"],
                 ClangArgs = options["clang_args"]
             )
-            self.Functions = survey.Survey()
-            logger.info(f" {len(self.Functions)} function(s)")
+            self._Functions = survey.Survey()
+            logger.info(f" {len(self._Functions)} function(s)")
+
+            # write db
+            self._write_db()
+            pass
 
 
             
@@ -390,8 +466,9 @@ class Command(BaseCommand):
 
 
         finally:
-            logger.debug(f" elapsed time {time.time() - start_time}")
+            logger.debug(f" elapsed time {(datetime.datetime.now() - start_time).total_seconds()}")
 
     def add_arguments(self, parser):
+        parser.add_argument('--project', nargs='?', default=None, type=str)
         parser.add_argument('--clang-args', nargs='?', default='target', type=str)
         parser.add_argument('target-file', nargs='?', default='', type=str)

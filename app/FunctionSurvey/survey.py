@@ -68,9 +68,9 @@ class Survey():
     def __init__(self, TargetSourceFile:str="", ClangArgs:str=""):
         self._TargetSourceFile = TargetSourceFile
         self._ClangArgs = ClangArgs
-        self._AnalysedFunctionList = []
+        self._Functions = {}
 
-    def Survey(self) -> list:
+    def Survey(self) -> dict:
         """function survey
         analyze each function in the source file.
         make AST and dump it.
@@ -81,7 +81,7 @@ class Survey():
         translation_unit = index.parse(self._TargetSourceFile, args=shlex.split(self._ClangArgs))
         self._dump_node(translation_unit.cursor)
 
-        return self._AnalysedFunctionList
+        return self._Functions
 
     def _dump_node(self, cursor:clang.cindex.Cursor):
         """ファイル全体を解析する
@@ -92,10 +92,6 @@ class Survey():
 
         # 関数ノード取得
         for child in cursor.get_children():
-            # in target source file
-#            if child.location.file.name != self._TargetSourceFile:
-#                continue
-
             # declear function
             if child.kind.name == "FUNCTION_DECL":
                 self._ProcFunctionDecl(child)
@@ -133,10 +129,13 @@ class Survey():
                     cursor=child,
                     AnalysisedFunction=AnalysisedFunction)
                 AnalysisedFunction.IsPrototype = False
+
+            else:
+                break
                 
 
         # 関数定義登録
-        self._AnalysedFunctionList.append(vars(AnalysisedFunction))
+        self._Functions[AnalysisedFunction.Name] = AnalysisedFunction
 
 
     def _ProcCompoundStmt(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
