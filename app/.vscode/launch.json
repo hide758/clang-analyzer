@@ -24,9 +24,10 @@
             "console": "integratedTerminal",
             "args": [
                 "funcsurvey",
+//                "-v", "2",
                 "--project", "MDS-E-BD SPINDLE",
                 "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
-                "target/usv/srv/valm.c",
+                "target/usv/srv/vomrff.c",
             ]
         },
         {

@@ -386,11 +386,21 @@ class Command(BaseCommand):
 
                 # add call functions from target function
                 for call_to_func in self._Functions[func].CallFunctions:
+                    # skip non-registed function
+                    if call_to_func["Name"] not in self._Functions.keys():
+                        logger.warning(f"  skip {func} -> {call_to_func['Name']}")    
+                        continue
+
                     if call_to_func["Name"] not in write_func:
                         write_func.append(call_to_func["Name"])
                 
                 # add target function
                 if func not in write_func:
+                    # skip non-registed function
+                    if func not in self._Functions.keys():
+                        logger.warning(f"  skip {func}")    
+                        continue
+
                     write_func.append(func)
 
         # atomic session
@@ -418,6 +428,10 @@ class Command(BaseCommand):
             for base_func in write_func:
                 # scan call other funcsion from base function
                 for call_to_func in self._Functions[base_func].CallFunctions:
+                    if call_to_func["Name"] not in func_profile.keys():
+                        logger.warning(f"  skip {base_func} -> {call_to_func['Name']}")    
+                        continue
+
                     # add function relation
                     #  - due to db textfield compare unexpected , file name isn't include compare keywords
                     call_func_profile, created = FunctionRelation.objects.get_or_create(
@@ -440,7 +454,12 @@ class Command(BaseCommand):
         try:
             start_time = datetime.datetime.now()
 
+            verbosity = options.get('verbosity', 1)
+            if verbosity >= 2:
+                logger.setLevel(logging.DEBUG)
+
             logger.info("Function Survey Start")
+            logger.info(f" {start_time.strftime('%Y/%m/%d %H:%M:%S')}")
             logger.info(f" Project    : {options['project']}")
             logger.info(f" target file: {options['target-file']}")
             logger.info(f" clang args : {options['clang_args']}")
@@ -466,7 +485,7 @@ class Command(BaseCommand):
 
 
         finally:
-            logger.debug(f" elapsed time {(datetime.datetime.now() - start_time).total_seconds()}")
+            logger.info(f" elapsed time {(datetime.datetime.now() - start_time).total_seconds()}")
 
     def add_arguments(self, parser):
         parser.add_argument('--project', nargs='?', default=None, type=str)

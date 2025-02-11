@@ -92,6 +92,9 @@ class Survey():
 
         # 関数ノード取得
         for child in cursor.get_children():
+#            if child.location.file.name != self._TargetSourceFile:
+#                continue
+
             # declear function
             if child.kind.name == "FUNCTION_DECL":
                 self._ProcFunctionDecl(child)
