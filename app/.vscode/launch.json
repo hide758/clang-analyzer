@@ -39,6 +39,18 @@
             "args": [
                 "cleardb",
             ]
+        },
+        {
+            "name": "export DB",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "exportdb",
+                "--project", "MDS-E-BD SPINDLE",
+            ]
         }
+
     ]
 }

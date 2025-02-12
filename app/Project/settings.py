@@ -142,12 +142,15 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
+        'simple-conrole': {
+            'format': '%(message)s'
+        },
     },
     'handlers': {
         # コンソール出力用ハンドラー
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'simple-conrole',
         },
         # ファイル出力用ハンドラー（プロジェクトルートに django.log として出力）
         'file': {
