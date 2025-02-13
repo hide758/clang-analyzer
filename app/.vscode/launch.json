@@ -1,0 +1,56 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python デバッガー: 現在のファイル",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "funcsurvey",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "target/usv/srv/valm.c",
+            ]
+        },
+        {
+            "name": "関数解析",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "funcsurvey",
+//                "-v", "2",
+                "--project", "MDS-E-BD SPINDLE",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "target/usv/srv/vomrff.c",
+            ]
+        },
+        {
+            "name": "DBクリア",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "cleardb",
+            ]
+        },
+        {
+            "name": "export DB",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "exportdb",
+                "--project", "MDS-E-BD SPINDLE",
+            ]
+        }
+
+    ]
+}
