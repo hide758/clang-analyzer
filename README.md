@@ -11,6 +11,26 @@ podman run --detach --pod clang-analyzer -it --volume $PWD/db/var_data:/var/lib/
 
 ## survey
 
+### analyze
+
+Analyze functions in target source file (*.c).
+
 ```shell
-python manage.py survey
+python manage.py funcsurvey [--project PROJECT] [--clang-args CLANG_ARGS] TARGET_SOURCE_FILE
+```
+
+### export database
+
+Export analyzing result from database.
+
+```shell
+python manage.py exportdb [--project PROJECT]
+```
+
+### crear database
+
+Clear database.
+
+```shell
+python manage.py cleardb
 ```

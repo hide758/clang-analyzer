@@ -367,10 +367,18 @@ class Command__(BaseCommand):
 
 
 class Command(BaseCommand):
+    """funcsurvey command class
+
+    Args:
+        BaseCommand (_type_): Django base command class
+    """    
     help = "関数調査"
     _Project = None
 
     def _write_db(self):
+        """write project to database
+
+        """        
         # write project table
         project_profile, created = Project.objects.get_or_create(
             name = self._Project,
@@ -451,6 +459,10 @@ class Command(BaseCommand):
         pass        
 
     def handle(self, *args, **options):
+        """command entry point
+
+        """        
+        
         try:
             start_time = datetime.datetime.now()
 
@@ -488,6 +500,12 @@ class Command(BaseCommand):
             logger.info(f" elapsed time {(datetime.datetime.now() - start_time).total_seconds()}")
 
     def add_arguments(self, parser):
+        """regist command arguments
+
+        Args:
+            parser (_type_): argument parser
+        """        
+
         parser.add_argument('--project', nargs='?', default=None, type=str)
         parser.add_argument('--clang-args', nargs='?', default='target', type=str)
         parser.add_argument('target-file', nargs='?', default='', type=str)

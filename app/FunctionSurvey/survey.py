@@ -46,6 +46,11 @@ class FunctionDecl:
         return self.Args
 
     def AddCallFunction(self, cursor:clang.cindex.Cursor):
+        """関数呼び出し追加
+
+        Args:
+            cursor (clang.cindex.Cursor): 関数呼び出し要素カーソル
+        """        
         if cursor.spelling not in self.CallFunctions:
             self.CallFunctions.append({
                 "Name"  : cursor.spelling,
@@ -66,6 +71,12 @@ class Survey():
     help = "survey source file"
 
     def __init__(self, TargetSourceFile:str="", ClangArgs:str=""):
+        """initialize
+
+        Args:
+            TargetSourceFile (str, optional): Analyzing target file (Defaults to "").
+            ClangArgs (str, optional): command-line option to clang (Defaults to "").
+        """        
         self._TargetSourceFile = TargetSourceFile
         self._ClangArgs = ClangArgs
         self._Functions = {}
