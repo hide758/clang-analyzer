@@ -1,0 +1,9 @@
+{
+  "name": "ClangAnalyzer",
+  "version": "0.0.2",
+  "description": "A project that uses Mermaid CLI",
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2"
+  }
+}
+

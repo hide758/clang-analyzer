@@ -7,8 +7,9 @@ WORKDIR /app
 # set timezone
 ENV TZ Asia/Tokyo
 
-# copy requirements.txt
+# copy initial module/package files.
 COPY requirements.txt $WORKDIR
+COPY package.json $WORKDIR
 
 # install packages
 RUN apt-get update -y \
@@ -27,6 +28,7 @@ RUN apt-get update -y \
         default-mysql-client \
         clang-14 \
         python3-clang-14 \
+        npm \
     && \
 
     echo "## Installing python packages" \
@@ -35,6 +37,9 @@ RUN apt-get update -y \
     pip install --upgrade pip \
     && \
     
-    pip install -r requirements.txt
+    pip install -r requirements.txt \
+    && \
+
+    npm --verbose install
 
 CMD ["bash"]
