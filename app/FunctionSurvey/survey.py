@@ -66,6 +66,59 @@ class FunctionDecl:
 
 
 
+class VarDecl:
+    """変数解析クラス
+    """    
+    def __init__(self, cursor:clang.cindex.Cursor, Scope:str = None):
+        """初期化
+
+        Args:
+            cursor (clang.cindex.Cursor): 要素カーソル
+        """        
+        self.Scope = Scope
+        self.Type = self._get_type_name(cursor.type)
+        self.Name = cursor.spelling
+        self.File = cursor.location.file.name
+        self.Line = cursor.location.line
+
+        self.IsArray = "ARRAY" in cursor.type.kind.name
+        self.ArraySize = cursor.type.get_array_size()
+
+        self.IsPointer = cursor.type.kind.name  == "POINTER"
+        self.IsExtern = cursor.storage_class.name == "EXTERN"
+        self.IsStatic = cursor.storage_class.name == "STATIC"
+        self.IsArgument = cursor.kind.name == "PARM_DECL"
+
+        self.IsConst = cursor.type.get_canonical().is_const_qualified()
+
+        pass
+
+
+    def _get_type_name(self, cursor:clang.cindex.Cursor):
+        """
+        return variable type name
+        """
+
+        # resolve type name recursively
+        if cursor.kind.name in ("CONSTANTARRAY",
+                            "INCOMPLETEARRAY",
+                            "VARIABLEARRAY"):
+            return self._get_type_name(cursor.get_array_element_type())
+
+
+        # remove "const"
+        if "const " in cursor.spelling:
+            return cursor.spelling.replace("const ", "")
+        else:
+            return cursor.spelling
+
+
+    def __str__(self):
+        """文字列化
+        """
+
+        return f"{self.Name}({','.join([f'{ArgName}:{ArgType}' for ArgName, ArgType in self.Args])})"
+
 
 class Survey():
     help = "survey source file"
@@ -80,6 +133,7 @@ class Survey():
         self._TargetSourceFile = TargetSourceFile
         self._ClangArgs = ClangArgs
         self._Functions = {}
+        self._Variables = []
 
     def Survey(self) -> dict:
         """function survey
@@ -110,6 +164,9 @@ class Survey():
             if child.kind.name == "FUNCTION_DECL":
                 self._ProcFunctionDecl(child)
 
+            elif child.kind.name == "VAR_DECL":
+                self._Variables.append(VarDecl(cursor=child, Scope = None))
+
 
     def _ProcFunctionDecl(self, cursor:clang.cindex.Cursor):
         """関数ノード内処理
@@ -136,6 +193,7 @@ class Survey():
             # 引数の解析
             if child.kind.name == "PARM_DECL":
                 AnalysisedFunction.AddArg(child)
+                self._Variables.append(VarDecl(cursor=child, Scope = AnalysisedFunction.Name))
 
             # 関数内処理の解析
             elif child.kind.name == "COMPOUND_STMT":
@@ -144,8 +202,8 @@ class Survey():
                     AnalysisedFunction=AnalysisedFunction)
                 AnalysisedFunction.IsPrototype = False
 
-            else:
-                break
+#            else:
+#                break
                 
 
         # 関数定義登録
@@ -174,12 +232,16 @@ class Survey():
         if cursor.kind.name == "CALL_EXPR":
             AnalysisedFunction.AddCallFunction(cursor)
 
+        # analyze variable declaration
+        elif cursor.kind.name == "VAR_DECL":
+            self._Variables.append(VarDecl(cursor=cursor, Scope = AnalysisedFunction.Name))
+
         for child in cursor.get_children():
             self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
 
 if __name__ == "__main__":
     survey = Survey(
-        TargetSourceFile="target/usv/srv/valm.c",
+        TargetSourceFile="target/usv/prm/paxcmp.c",
         ClangArgs="-I target/ansi -I target/usv/inc -D SPINDLE"
     )
     ret = survey.Survey()
