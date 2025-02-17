@@ -146,7 +146,10 @@ class Survey():
         translation_unit = index.parse(self._TargetSourceFile, args=shlex.split(self._ClangArgs))
         self._dump_node(translation_unit.cursor)
 
-        return self._Functions
+        return {
+            "Functions"  :self._Functions,
+            "Variables"  :self._Variables,
+        }
 
     def _dump_node(self, cursor:clang.cindex.Cursor):
         """ファイル全体を解析する
@@ -165,7 +168,7 @@ class Survey():
                 self._ProcFunctionDecl(child)
 
             elif child.kind.name == "VAR_DECL":
-                self._Variables.append(VarDecl(cursor=child, Scope = None))
+                self._Variables.append(vars(VarDecl(cursor=child, Scope = None)))
 
 
     def _ProcFunctionDecl(self, cursor:clang.cindex.Cursor):
@@ -193,7 +196,7 @@ class Survey():
             # 引数の解析
             if child.kind.name == "PARM_DECL":
                 AnalysisedFunction.AddArg(child)
-                self._Variables.append(VarDecl(cursor=child, Scope = AnalysisedFunction.Name))
+                self._Variables.append(vars(VarDecl(cursor=child, Scope = AnalysisedFunction.Name)))
 
             # 関数内処理の解析
             elif child.kind.name == "COMPOUND_STMT":
@@ -207,7 +210,7 @@ class Survey():
                 
 
         # 関数定義登録
-        self._Functions[AnalysisedFunction.Name] = AnalysisedFunction
+        self._Functions[AnalysisedFunction.Name] = vars(AnalysisedFunction)
 
 
     def _ProcCompoundStmt(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
@@ -234,7 +237,7 @@ class Survey():
 
         # analyze variable declaration
         elif cursor.kind.name == "VAR_DECL":
-            self._Variables.append(VarDecl(cursor=cursor, Scope = AnalysisedFunction.Name))
+            self._Variables.append(vars(VarDecl(cursor=cursor, Scope = AnalysisedFunction.Name)))
 
         for child in cursor.get_children():
             self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)

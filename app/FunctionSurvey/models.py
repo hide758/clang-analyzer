@@ -84,3 +84,47 @@ class FunctionRelation(models.Model):
 
     def __str__(self):
         return f"{self.call_from} -> {self.call_to}"
+
+
+class Variable(models.Model):
+    """Variable Model
+    """
+
+    id = models.AutoField(primary_key=True)
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='variable_project',
+        null=True)
+    
+    scope = models.ForeignKey(
+        Function,
+        on_delete=models.CASCADE,
+        related_name='variable_function',
+        null=True)
+
+    type = models.CharField(
+        max_length = 128
+        )
+
+    name = models.CharField(
+        max_length = 256
+        )
+    
+    file = models.TextField()
+    line = models.IntegerField()
+
+    static = models.BooleanField(default=False)
+    const = models.BooleanField(default=False)
+    is_pointer = models.BooleanField(default=True)
+    is_prototype = models.BooleanField(default=True)
+
+    created = models.DateTimeField(auto_now=True)
+    modified = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'variable'
+
+    def __str__(self):
+        return f"{self.scope}::{self.name}"

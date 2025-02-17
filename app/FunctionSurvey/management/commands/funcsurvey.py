@@ -374,6 +374,8 @@ class Command(BaseCommand):
     """    
     help = "関数調査"
     _Project = None
+    _Functions = {}
+    _Variables = []
 
     def _write_db(self):
         """write project to database
@@ -390,10 +392,10 @@ class Command(BaseCommand):
         write_func = []
         for func in self._Functions:
             # target function
-            if self._Functions[func].IsPrototype == False:
+            if self._Functions[func]["IsPrototype"] == False:
 
                 # add call functions from target function
-                for call_to_func in self._Functions[func].CallFunctions:
+                for call_to_func in self._Functions[func]["CallFunctions"]:
                     # skip non-registed function
                     if call_to_func["Name"] not in self._Functions.keys():
                         logger.warning(f"  skip {func} -> {call_to_func['Name']}")    
@@ -422,20 +424,20 @@ class Command(BaseCommand):
                     name = func,
                     defaults = {
                         "project"       : project_profile,
-                        "return_type"   : self._Functions[func].ReturnType,
-                        "arguments"     : self._Functions[func].Args,
-                        "file"          : self._Functions[func].File,
-                        "line"          : self._Functions[func].Line,
-                        "static"        : self._Functions[func].IsStatic,
-                        "const"         : self._Functions[func].IsConst,
-                        "is_prototype"  : self._Functions[func].IsPrototype
+                        "return_type"   : self._Functions[func]["ReturnType"],
+                        "arguments"     : self._Functions[func]["Args"],
+                        "file"          : self._Functions[func]["File"],
+                        "line"          : self._Functions[func]["Line"],
+                        "static"        : self._Functions[func]["IsStatic"],
+                        "const"         : self._Functions[func]["IsConst"],
+                        "is_prototype"  : self._Functions[func]["IsPrototype"]
                     }
                 )
 
             # write function relation table
             for base_func in write_func:
                 # scan call other funcsion from base function
-                for call_to_func in self._Functions[base_func].CallFunctions:
+                for call_to_func in self._Functions[base_func]["CallFunctions"]:
                     if call_to_func["Name"] not in func_profile.keys():
                         logger.warning(f"  skip {base_func} -> {call_to_func['Name']}")    
                         continue
@@ -452,9 +454,12 @@ class Command(BaseCommand):
                             "call_from" : func_profile[base_func],
                             "call_to"   : func_profile[call_to_func["Name"]],
                             "line"      : call_to_func["Line"],
-                            "file"      : self._Functions[base_func].File,
+                            "file"      : self._Functions[base_func]["File"],
                         }
                     )
+
+        logger.info(f" {len(write_func)} function(s)")
+
 
         pass        
 
@@ -483,8 +488,9 @@ class Command(BaseCommand):
                 TargetSourceFile = options["target-file"],
                 ClangArgs = options["clang_args"]
             )
-            self._Functions = survey.Survey()
-            logger.info(f" {len(self._Functions)} function(s)")
+            analysised = survey.Survey()
+            self._Functions = analysised["Functions"]
+            self._Variables = analysised["Variables"]
 
             # write db
             self._write_db()
