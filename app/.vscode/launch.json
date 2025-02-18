@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python デバッガー: 現在のファイル",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -28,6 +28,20 @@
                 "--project", "MDS-E-BD SPINDLE",
                 "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
                 "target/usv/srv/vomrff.c",
+            ]
+        },
+        {
+            "name": "関数ツリー",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "functree",
+                "--project", "MDS-E-BD SPINDLE",
+                "--upper", "0",
+                "--lower", "1",
+                "hss_port_alm",
             ]
         },
         {
