@@ -230,6 +230,7 @@ class Survey():
             cursor (clang.cindex.Cursor): 処理へのカーソル
             FunctionName (str): 関数名
         """    
+        skip_children = False
 
         # 関数呼び出しの判定
         if cursor.kind.name == "CALL_EXPR":
@@ -239,8 +240,32 @@ class Survey():
         elif cursor.kind.name == "VAR_DECL":
             self._Variables.append(vars(VarDecl(cursor=cursor, Scope = AnalysisedFunction.Name)))
 
-        for child in cursor.get_children():
-            self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
+        # get struct member
+        elif cursor.kind.name == "MEMBER_REF_EXPR":
+            struct_member = ".".join(self._ProcMemberRefExpr(cursor=cursor, AnalysisedFunction = AnalysisedFunction))
+            skip_children = True
+
+        # search children when not skip
+        if skip_children == False:
+            for child in cursor.get_children():
+                self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
+
+    def _ProcMemberRefExpr(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
+        names = []
+
+        # search children
+        # some cursor type has multi children, but only first child is used.
+        children = list(cursor.get_children())
+        if len(children) != 0:
+            names = self._ProcMemberRefExpr(cursor = children[0], AnalysisedFunction = AnalysisedFunction)
+
+
+        # add member name
+        if  cursor.kind.name in ("DECL_REF_EXPR", "MEMBER_REF_EXPR"):
+            names.append(cursor.spelling)
+
+        return names
+
 
 if __name__ == "__main__":
     survey = Survey(
