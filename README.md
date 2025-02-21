@@ -27,7 +27,7 @@ Export analyzing result from database.
 python manage.py exportdb [--project PROJECT]
 ```
 
-### crear database
+### clear database
 
 Clear database.
 
