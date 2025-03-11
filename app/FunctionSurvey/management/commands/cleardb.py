@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from ...models import Project, Function, FunctionRelation
+from ...models import Project, Function, FunctionRelation, Variable
 
 import logging
 import datetime
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         try:
             start_time = datetime.datetime.now()
 
-            delete_table = [FunctionRelation, Function, Project]
+            delete_table = [FunctionRelation, Variable, Function, Project]
 
             logger.info("Database Clear Start")
             logger.info(f" {start_time.strftime('%Y/%m/%d %H:%M:%S')}")
