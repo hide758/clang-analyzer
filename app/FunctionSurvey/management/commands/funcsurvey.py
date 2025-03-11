@@ -418,21 +418,35 @@ class Command(BaseCommand):
             # write & get record from function table
             func_profile = {}
             for func in write_func:
-                # append records and get record profile
-                func_profile[func], created = Function.objects.get_or_create(
-                    project = project_profile,
-                    name = func,
-                    defaults = {
-                        "project"       : project_profile,
-                        "return_type"   : self._Functions[func]["ReturnType"],
-                        "arguments"     : self._Functions[func]["Args"],
-                        "file"          : self._Functions[func]["File"],
-                        "line"          : self._Functions[func]["Line"],
-                        "static"        : self._Functions[func]["IsStatic"],
-                        "const"         : self._Functions[func]["IsConst"],
-                        "is_prototype"  : self._Functions[func]["IsPrototype"]
-                    }
-                )
+                # set value
+                value = {
+                    "project"       : project_profile,
+                    "return_type"   : self._Functions[func]["ReturnType"],
+                    "arguments"     : self._Functions[func]["Args"],
+                    "file"          : self._Functions[func]["File"],
+                    "line"          : self._Functions[func]["Line"],
+                    "static"        : self._Functions[func]["IsStatic"],
+                    "const"         : self._Functions[func]["IsConst"],
+                    "is_prototype"  : self._Functions[func]["IsPrototype"]
+                }
+
+                # The written function is NOT a prototype. In this case, it update or create record.
+                if self._Functions[func]["IsPrototype"] == False:
+                    # update or get record profile
+                    func_profile[func], created = Function.objects.update_or_create(
+                        project = project_profile,
+                        name = func,
+                        defaults = value
+                    )
+
+                # The written function is a prototype. In this case, it create record.
+                else:
+                    # append and get record profile
+                    func_profile[func], created = Function.objects.get_or_create(
+                        project = project_profile,
+                        name = func,
+                        defaults = value
+                    )
 
             # write function relation table
             for base_func in write_func:
