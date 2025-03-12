@@ -151,6 +151,10 @@ class Survey():
             "Variables"  :self._Variables,
         }
 
+    def _show_node_tree(self, cursor:clang.cindex.Cursor, depth:int=0):
+        for child in cursor.get_children():
+                self._show_node_tree(child, depth + 1)
+
     def _dump_node(self, cursor:clang.cindex.Cursor):
         """ファイル全体を解析する
 
@@ -205,10 +209,16 @@ class Survey():
                     AnalysisedFunction=AnalysisedFunction)
                 AnalysisedFunction.IsPrototype = False
 
-#            else:
-#                break
-                
 
+        if len(AnalysisedFunction.GetArgs()) == 0:
+            AnalysisedFunction.Args.append({
+                "Type"  : "void",
+                "CanonicalType"  : "void",
+                "IsPointer"  : False,
+                "IsConst"   : False,
+                "Name"  : ""
+            })
+                
         # 関数定義登録
         self._Functions[AnalysisedFunction.Name] = vars(AnalysisedFunction)
 
@@ -240,15 +250,42 @@ class Survey():
         elif cursor.kind.name == "VAR_DECL":
             self._Variables.append(vars(VarDecl(cursor=cursor, Scope = AnalysisedFunction.Name)))
 
+        # analyze binary operation
+#        elif cursor.kind.name == "BINARY_OPERATOR":
+#            self._show_node_tree(cursor, 0)
+#            ref, write = self._ProcBinaryOperator(cursor=cursor, AnalysisedFunction = AnalysisedFunction)
+
         # get struct member
-        elif cursor.kind.name == "MEMBER_REF_EXPR":
-            struct_member = ".".join(self._ProcMemberRefExpr(cursor=cursor, AnalysisedFunction = AnalysisedFunction))
-            skip_children = True
+#        elif cursor.kind.name == "MEMBER_REF_EXPR":
+#            struct_member = ".".join(self._ProcMemberRefExpr(cursor=cursor, AnalysisedFunction = AnalysisedFunction))
+#            skip_children = True
 
         # search children when not skip
         if skip_children == False:
             for child in cursor.get_children():
                 self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
+
+    def _ProcBinaryOperator(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
+        pass
+        (read_child, write_child) = list(cursor.get_children())
+        tokens = [token.spelling for token in cursor.get_tokens()]
+        is_assignment = False
+        is_compare = False
+
+        if any(token in ("=", "+=", "-=", "*=", "/=", "%=") for token in tokens):
+            lhs = cursor.get_children().__next__()
+            rhs = list(cursor.get_children())[1]
+
+            is_assignment = True
+
+        if any(token in ("==", "!=") for token in tokens):
+            is_compare = True
+
+#        for child in read_child.get_children():
+        read = ".".join(self._ProcMemberRefExpr(cursor=read_child, AnalysisedFunction = AnalysisedFunction))
+        write = ".".join(self._ProcMemberRefExpr(cursor=write_child, AnalysisedFunction = AnalysisedFunction))
+
+        return read,write
 
     def _ProcMemberRefExpr(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
         names = []
