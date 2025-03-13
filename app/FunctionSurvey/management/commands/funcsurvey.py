@@ -157,7 +157,7 @@ class Command(BaseCommand):
 
                 # When the path prefix matches exactly
                 if filepath.is_relative_to(remove_path_prefix):
-                    self._Functions[func]["File"] = filepath.relative_to(remove_path_prefix)
+                    self._Functions[func]["File"] = str(filepath.relative_to(remove_path_prefix))
 
                 # When the path prefix is included in the path
                 else:
