@@ -1,6 +1,7 @@
 import logging
 import shlex
 import clang.cindex
+import re
 
 logger = logging.getLogger('Survey')
 
@@ -23,18 +24,25 @@ class FunctionDecl:
         self.CallFunctions = []
 
 
-    def AddArg(self, cursor:clang.cindex.Cursor):
+    def AddArg(self, cursor:clang.cindex.Cursor, Void:bool = False):
         """関数引数追加
 
         Args:
             cursor (clang.cindex.Cursor): 要素カーソル
         """        
+        if Void == False:
+            var = VarDecl(cursor=cursor)
+
+        else:
+            var = VarDecl(cursor=cursor, Void=True)
+ 
         self.Args.append({
-            "Type"  : cursor.type.spelling,
+            "Type"  : var.Type,
             "CanonicalType"  : cursor.type.get_canonical().spelling,
-            "IsPointer"  : cursor.type.kind.name  == "POINTER",
-            "IsConst"   : cursor.type.is_const_qualified(),
-            "Name"  : cursor.spelling
+            "Declear"  : var.Declear,
+            "IsPointer"  : var.IsPointer,
+            "IsConst"   : var.IsConst,
+            "Name"  : var.Name
         })
 
     def GetArgs(self) -> list:
@@ -69,30 +77,56 @@ class FunctionDecl:
 class VarDecl:
     """変数解析クラス
     """    
-    def __init__(self, cursor:clang.cindex.Cursor, Scope:str = None):
+    def __init__(self, cursor:clang.cindex.Cursor, Scope:str = None, Void:bool = False):
         """初期化
 
         Args:
             cursor (clang.cindex.Cursor): 要素カーソル
         """        
-        self.Scope = Scope
-        self.Type = self._get_type_name(cursor.type)
-        self.Name = cursor.spelling
-        self.File = cursor.location.file.name
-        self.Line = cursor.location.line
 
-        self.IsArray = "ARRAY" in cursor.type.kind.name
-        self.ArraySize = cursor.type.get_array_size()
+        # return void
+        if Void == True:
+            self.Scope = Scope
+            self.Type = "void"
+            self.Name = ""
+            self.File = cursor.location.file.name
+            self.Line = cursor.location.line
 
-        self.IsPointer = cursor.type.kind.name  == "POINTER"
-        self.IsExtern = cursor.storage_class.name == "EXTERN"
-        self.IsStatic = cursor.storage_class.name == "STATIC"
-        self.IsArgument = cursor.kind.name == "PARM_DECL"
+            self.IsArray = False
+            self.ArraySize = False
 
-        self.IsConst = cursor.type.get_canonical().is_const_qualified()
+            self.IsPointer = False
+            self.IsExtern = False
+            self.IsStatic = False
+            self.IsArgument = False
+            self.IsConst = False
 
-        pass
+            self.Declear = "void"
 
+        # set variable
+        else:
+            self.Scope = Scope
+            self.Type = self._get_type_name(cursor.type)
+            self.Name = cursor.spelling
+            self.File = cursor.location.file.name
+            self.Line = cursor.location.line
+
+            self.IsArray = "ARRAY" in cursor.type.kind.name
+            self.ArraySize = cursor.type.get_array_size()
+
+            self.IsPointer = self.IsArray or cursor.type.kind.name  == "POINTER"
+            self.IsExtern = cursor.storage_class.name == "EXTERN"
+            self.IsStatic = cursor.storage_class.name == "STATIC"
+            self.IsArgument = cursor.kind.name == "PARM_DECL"
+
+            self.IsConst = cursor.type.get_canonical().is_const_qualified()
+
+
+            self.Declear = ""
+            pattern = r'^(?P<qualifiers>(?:(?:const|volatile)\s+)+)?(?P<base>[\w: \*]+)(?P<array>\[.*\])?'
+            m = re.match(pattern, cursor.type.spelling)
+            if m != None:
+                self.Declear = f"{m.group(1) if m.group(1) != None else ''} {m.group(2).strip()} {cursor.spelling}{m.group(3) if m.group(3) != None else ''}"
 
     def _get_type_name(self, cursor:clang.cindex.Cursor):
         """
@@ -106,11 +140,14 @@ class VarDecl:
             return self._get_type_name(cursor.get_array_element_type())
 
 
-        # remove "const"
-        if "const " in cursor.spelling:
-            return cursor.spelling.replace("const ", "")
-        else:
-            return cursor.spelling
+        # remove "const", "*"
+        ret = cursor.spelling
+        if "const " in ret:
+            ret = ret.replace("const ", "")
+        if " *" in ret:
+            ret = ret.replace(" *", "")
+
+        return ret
 
 
     def __str__(self):
@@ -209,15 +246,9 @@ class Survey():
                     AnalysisedFunction=AnalysisedFunction)
                 AnalysisedFunction.IsPrototype = False
 
-
+        # add void argument when no argument
         if len(AnalysisedFunction.GetArgs()) == 0:
-            AnalysisedFunction.Args.append({
-                "Type"  : "void",
-                "CanonicalType"  : "void",
-                "IsPointer"  : False,
-                "IsConst"   : False,
-                "Name"  : ""
-            })
+            AnalysisedFunction.AddArg(cursor, Void=True)
                 
         # 関数定義登録
         self._Functions[AnalysisedFunction.Name] = vars(AnalysisedFunction)
