@@ -38,6 +38,7 @@ class Function(models.Model):
     arguments = models.JSONField()
     file = models.TextField()
     line = models.IntegerField()
+    end_line = models.IntegerField(null=True)
 
     static = models.BooleanField(default=False)
     const = models.BooleanField(default=False)

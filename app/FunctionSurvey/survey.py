@@ -224,6 +224,7 @@ class Survey():
         AnalysisedFunction = FunctionDecl(FunctionName=cursor.spelling)
         AnalysisedFunction.File = f"{cursor.location.file.name}"
         AnalysisedFunction.Line = f"{cursor.location.line}"
+        AnalysisedFunction.EndLine = f"{cursor.extent.end.line}"
         AnalysisedFunction.IsPrototype = True
         AnalysisedFunction.IsStatic = cursor.storage_class.name=="STATIC"
         AnalysisedFunction.IsConst = cursor.is_const_method()

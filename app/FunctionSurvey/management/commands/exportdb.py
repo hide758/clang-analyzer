@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
         # make function list
         no = 1
-        func_list = [["No.", "プロジェクト", "const", "static", "戻り値型", "関数名", "引数", "ファイル", "行番号"],]
+        func_list = [["No.", "プロジェクト", "const", "static", "戻り値型", "関数名", "引数", "ファイル", "先頭行番号", "末尾行番号"],]
         for obj in Functions:
             args = "\n".join([f"{ag['Type']} {ag['Name']}" for ag in obj.arguments])
             func_list.append([
@@ -62,7 +62,8 @@ class Command(BaseCommand):
                 obj.name,                       # 関数名
                 args,                           # 引数
                 obj.file,                       # ファイル
-                obj.line,                       # 行番号
+                obj.line,                       # 先頭行番号
+                obj.end_line,                   # 末尾行番号
                 ])
             
             no += 1

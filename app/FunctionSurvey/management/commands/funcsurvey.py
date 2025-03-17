@@ -68,6 +68,7 @@ class Command(BaseCommand):
                     "arguments"     : self._Functions[func]["Args"],
                     "file"          : self._Functions[func]["File"],
                     "line"          : self._Functions[func]["Line"],
+                    "end_line"      : self._Functions[func]["EndLine"],
                     "static"        : self._Functions[func]["IsStatic"],
                     "const"         : self._Functions[func]["IsConst"],
                     "is_prototype"  : self._Functions[func]["IsPrototype"]
