@@ -22,12 +22,14 @@
             "request": "launch",
             "program": "manage.py",
             "console": "integratedTerminal",
+            "justMyCode": false,
             "args": [
                 "funcsurvey",
 //                "-v", "2",
-                "--project", "MDS-E-BD SPINDLE",
+                "--project", "MDS-E-BD SERVO",
                 "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
-                "target/usv/srv/vomrff.c",
+                "--remove-path-prefix", "target/usv/",
+                "target/usv/srv/valm.c",
             ]
         },
         {
@@ -38,9 +40,9 @@
             "console": "integratedTerminal",
             "args": [
                 "functree",
-                "--project", "MDS-E-BD SPINDLE",
+                "--project", "MDS-E-BD SERVO",
                 "--upper", "0",
-                "--lower", "1",
+                "--lower", "3",
                 "hss_port_alm",
             ]
         },
@@ -62,7 +64,20 @@
             "console": "integratedTerminal",
             "args": [
                 "exportdb",
-                "--project", "MDS-E-BD SPINDLE",
+                "--project", "MDS-E-BD SERVO",
+            ]
+        },
+        {
+            "name": "make stub file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "makestub",
+                "--project", "MDS-E-BD SERVO",
+                "--save-as", "stub",
+                "--parent-func", "ReadE2rom,WriteE2rom,e2wren,PsConvert,PsConvertB,PsConvertH,PsConvertW,PsConvert24Bit,PsConvert24Bit,SetRoffBld,PreDbg,GetBatVolt,WaitEP0status,VklVkpChange,VklVkpChange,CmdCtblChg,CmdCtblChg,ChgOsaBrt,ChgOsaBrtDef,clr_abz_zfin,clr_abz_zfin,e2readc,e2writeh,prm_after,prm_after,mtyp_conv,mtyp_conv,SetDdiDpc1L,SetDdiDpc1H,SetDdiDpc2L,SetDdiDpc2H,SetDdiDrapidL,SetDdiDrapidH,SetDdiDpgn1,WriteMemory,WriteScpu,DiSetComCommand,DiResetComCommand,DiSetIfuCommand,DiResetIfuCommand,CmdMmWord,CmdMmHalfWord,CmdMmByte,CmdEmm,ScpuMmWord,ScpuMmHalfWord,ScpuMmByte,da1_command,da2_command,da3_command,da4_command,da5_command,CmdMfWord,CmdMfHalfWord,CmdMfByte,CmdEmf,RstCommand,CmdMdWord,CmdMdHalfWord,CmdMdByte,CmdEmd,ScpuMdWord,ScpuMdHalfWord,ScpuMdByte,e2rd_init,e2rd_init,servo_wait_run,trc0329,trc032a,trc032b,trc032c,trc0301,trc0302,trc0303,trc0304,trc0305,trc0340,trc0341,trc0342,trc0343,trc0344,trc0345,trc0346,trc0347,trc0318,trc031b,trc030a,trc030b,trc030f,trc0324,trc0325,trc0326,trc0327,trc0348,trc034b,trc034f,trc0310,trc0311,trc0314,trc0315,trc0316,trc0317,TrcErrCtrl,trc0350,trc0354,trc0355,trc0356,trc0357,trc0359,trc035a,trc035b,trc035c,trc0330,trc0331,trc0332,trc0334,trc0335,trc0374,trc0375,InitSciTsk,InitSciTsk,MachTrx,MachTrx,MachTrx,MachbTrx,MachbTrx,MachbTrx,RttWupNci,RttWupNci,LedManualOut,clr_abz_frc,clr_abz_frc,clr_abz_frc,PVImacParaInit,PVImacParaInit,PVImacParaInit,PcvDtrIni,PcvDtrIni,PcvDtrIni,pcv_ore,SetMsrTapI,pcv_lmc4,pcv_obscnt,pcvs_ilmtsp,pcvs_lmc1,pcvs_ovs1,pcvs_lmc2,pcvs_ovs2,PreSWVcmd,SetE2Ovr,trc030d,SciTxEncInfoPrt3,SciTxEncInfoPrt3",
             ]
         }
 

@@ -50,20 +50,25 @@ class Command(BaseCommand):
 
         # make function list
         no = 1
-        func_list = [["No.", "プロジェクト", "const", "static", "戻り値型", "関数名", "引数", "ファイル", "先頭行番号", "末尾行番号"],]
+        func_list = [["No.", "プロジェクト", "const", "static", "戻り値型", "関数名", "引数", "for", "if", "switch", "while", "do", "ファイル", "先頭行番号", "末尾行番号"],]
         for obj in Functions:
             args = "\n".join([f"{ag['Type']} {ag['Name']}" for ag in obj.arguments])
             func_list.append([
-                no,                             # No.
-                obj.project.name,               # プロジェクト
-                "✓" if obj.const else "",      # (呼び出し元) const
-                "✓" if obj.static else "",     # (呼び出し元) const
-                obj.return_type,                # 戻り値型
-                obj.name,                       # 関数名
-                args,                           # 引数
-                obj.file,                       # ファイル
-                obj.line,                       # 先頭行番号
-                obj.end_line,                   # 末尾行番号
+                no,                                     # No.
+                obj.project.name,                       # プロジェクト
+                "✓" if obj.const   else "",            # (呼び出し元) const
+                "✓" if obj.static  else "",            # (呼び出し元) const
+                obj.return_type,                        # 戻り値型
+                obj.name,                               # 関数名
+                args,                                   # 引数
+                "✓" if obj.include_for     else "",    # for
+                "✓" if obj.include_if      else "",    # if
+                "✓" if obj.include_switch  else "",    # switch
+                "✓" if obj.include_while   else "",    # while
+                "✓" if obj.include_do      else "",    # do
+                obj.file,                               # ファイル
+                obj.line,                               # 先頭行番号
+                obj.end_line,                           # 末尾行番号
                 ])
             
             no += 1

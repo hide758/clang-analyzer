@@ -44,6 +44,12 @@ class Function(models.Model):
     const = models.BooleanField(default=False)
     is_prototype = models.BooleanField(default=True)
 
+    include_for     = models.BooleanField(default=False, null=True)
+    include_if      = models.BooleanField(default=False, null=True)
+    include_switch  = models.BooleanField(default=False, null=True)
+    include_while   = models.BooleanField(default=False, null=True)
+    include_do      = models.BooleanField(default=False, null=True)
+
     created = models.DateTimeField(auto_now=True)
     modified = models.DateTimeField(auto_now_add=True)
 

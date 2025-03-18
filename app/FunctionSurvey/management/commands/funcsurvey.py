@@ -71,7 +71,12 @@ class Command(BaseCommand):
                     "end_line"      : self._Functions[func]["EndLine"],
                     "static"        : self._Functions[func]["IsStatic"],
                     "const"         : self._Functions[func]["IsConst"],
-                    "is_prototype"  : self._Functions[func]["IsPrototype"]
+                    "is_prototype"  : self._Functions[func]["IsPrototype"],
+                    "include_for"   : self._Functions[func]["IncludeFor"],
+                    "include_if"    : self._Functions[func]["IncludeIf"],
+                    "include_switch": self._Functions[func]["IncludeSwitch"],
+                    "include_while" : self._Functions[func]["IncludeWhile"],
+                    "include_do"    : self._Functions[func]["IncludeDo"],
                 }
 
                 # The written function is NOT a prototype. In this case, it update or create record.

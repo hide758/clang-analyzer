@@ -19,6 +19,11 @@ class FunctionDecl:
         self.IsPrototype = True
         self.IsStatic = False
         self.IsConst = False
+        self.IncludeFor = False
+        self.IncludeIf = False
+        self.IncludeSwitch = False
+        self.IncludeWhile = False
+        self.IncludeDo = False
         self.Args = []
         self.ReturnType = {}
         self.CallFunctions = []
@@ -272,7 +277,22 @@ class Survey():
             cursor (clang.cindex.Cursor): 処理へのカーソル
             FunctionName (str): 関数名
         """    
-        skip_children = False
+
+        # check using statements
+        if cursor.kind.name == "FOR_STMT":
+            AnalysisedFunction.IncludeFor = True
+
+        if cursor.kind.name == "IF_STMT":
+            AnalysisedFunction.IncludeIf = True
+
+        if cursor.kind.name == "SWITCH_STMT":
+            AnalysisedFunction.IncludeSwitch = True
+
+        if cursor.kind.name == "WHILE_STMT":
+            AnalysisedFunction.IncludeWhile = True
+
+        if cursor.kind.name == "DO_STMT":
+            AnalysisedFunction.IncludeDo = True
 
         # 関数呼び出しの判定
         if cursor.kind.name == "CALL_EXPR":
@@ -292,10 +312,9 @@ class Survey():
 #            struct_member = ".".join(self._ProcMemberRefExpr(cursor=cursor, AnalysisedFunction = AnalysisedFunction))
 #            skip_children = True
 
-        # search children when not skip
-        if skip_children == False:
-            for child in cursor.get_children():
-                self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
+        # search children
+        for child in cursor.get_children():
+            self._ProcParse(cursor=child, AnalysisedFunction=AnalysisedFunction)
 
     def _ProcBinaryOperator(self, cursor:clang.cindex.Cursor, AnalysisedFunction:FunctionDecl):
         pass
