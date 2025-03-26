@@ -73,12 +73,14 @@ class FunctionRelation(models.Model):
     call_from = models.ForeignKey(
         Function,
         on_delete=models.CASCADE,
-        related_name='call_from')
+        related_name='call_from',
+        null=True)
     
     call_to = models.ForeignKey(
         Function,
         on_delete=models.CASCADE,
-        related_name='call_to')
+        related_name='call_to',
+        null=True)
 
     file = models.TextField()
     line = models.IntegerField()

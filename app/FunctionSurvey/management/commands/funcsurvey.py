@@ -30,6 +30,13 @@ class Command(BaseCommand):
             defaults = {}
         )
 
+        func_pointer = list(set([
+            func
+            for var in self._Variables
+            if var.get("FunctionPointer")  # None や空リストをスキップ
+            for func in var["FunctionPointer"]
+        ]))
+
         # select write functions
         # fillter non-prototype functions
         write_func = []
@@ -55,6 +62,9 @@ class Command(BaseCommand):
                         continue
 
                     write_func.append(func)
+
+            elif func in func_pointer:
+                write_func.append(func)
 
         # atomic session
         with transaction.atomic():
@@ -99,6 +109,21 @@ class Command(BaseCommand):
 
             # write function relation table
             for base_func in write_func:
+                if base_func in func_pointer:
+                    call_func_profile, created = FunctionRelation.objects.get_or_create(
+                        project = project_profile,
+                        call_from = None,
+                        call_to = func_profile[base_func],
+                        line = func_profile[base_func].line,
+                        defaults = {
+                            "project"   : project_profile,
+                            "call_from" : None,
+                            "call_to"   : func_profile[base_func],
+                            "line"      : func_profile[base_func].line,
+                            "file"      : self._Functions[base_func]["File"],
+                        }
+                    )
+
                 # scan call other funcsion from base function
                 for call_to_func in self._Functions[base_func]["CallFunctions"]:
                     if call_to_func["Name"] not in func_profile.keys():
