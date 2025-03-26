@@ -99,6 +99,7 @@ class VarDecl:
 
             self.IsArray = False
             self.ArraySize = False
+            self.FunctionPointer = []
 
             self.IsPointer = False
             self.IsExtern = False
@@ -118,6 +119,7 @@ class VarDecl:
 
             self.IsArray = "ARRAY" in cursor.type.kind.name
             self.ArraySize = cursor.type.get_array_size()
+            self.FunctionPointer = []
 
             self.IsPointer = self.IsArray or cursor.type.kind.name  == "POINTER"
             self.IsExtern = cursor.storage_class.name == "EXTERN"
@@ -132,6 +134,9 @@ class VarDecl:
             m = re.match(pattern, cursor.type.spelling)
             if m != None:
                 self.Declear = f"{m.group(1) if m.group(1) != None else ''} {m.group(2).strip()} {cursor.spelling}{m.group(3) if m.group(3) != None else ''}"
+
+            self._ProcParse(cursor)
+
 
     def _get_type_name(self, cursor:clang.cindex.Cursor):
         """
@@ -153,6 +158,16 @@ class VarDecl:
             ret = ret.replace(" *", "")
 
         return ret
+
+    def _ProcParse(self, cursor:clang.cindex.Cursor, depth:int=0):
+
+        # check function pointer
+        if cursor.type.kind.name == "FUNCTIONPROTO":
+            self.FunctionPointer.append(cursor.spelling)
+
+        # search children
+        for child in cursor.get_children():
+            self._ProcParse(cursor=child, depth = depth + 1)
 
 
     def __str__(self):
