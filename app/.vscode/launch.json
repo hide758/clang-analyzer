@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "funcsurvey",
-                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SERVO",
                 "target/usv/srv/valm.c",
             ]
         },
@@ -27,9 +27,9 @@
                 "funcsurvey",
 //                "-v", "2",
                 "--project", "MDS-E-BD SERVO",
-                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SERVO",
                 "--remove-path-prefix", "target/usv/",
-                "target/usv/srv/valm.c",
+                "target/usv/dbg/dbgMain/xtbl.c",
             ]
         },
         {
@@ -77,7 +77,7 @@
                 "makestub",
                 "--project", "MDS-E-BD SERVO",
                 "--save-as", "stub",
-                "--parent-func", "ReadE2rom,WriteE2rom,e2wren,PsConvert,PsConvertB,PsConvertH,PsConvertW,PsConvert24Bit,PsConvert24Bit,SetRoffBld,PreDbg,GetBatVolt,WaitEP0status,VklVkpChange,VklVkpChange,CmdCtblChg,CmdCtblChg,ChgOsaBrt,ChgOsaBrtDef,clr_abz_zfin,clr_abz_zfin,e2readc,e2writeh,prm_after,prm_after,mtyp_conv,mtyp_conv,SetDdiDpc1L,SetDdiDpc1H,SetDdiDpc2L,SetDdiDpc2H,SetDdiDrapidL,SetDdiDrapidH,SetDdiDpgn1,WriteMemory,WriteScpu,DiSetComCommand,DiResetComCommand,DiSetIfuCommand,DiResetIfuCommand,CmdMmWord,CmdMmHalfWord,CmdMmByte,CmdEmm,ScpuMmWord,ScpuMmHalfWord,ScpuMmByte,da1_command,da2_command,da3_command,da4_command,da5_command,CmdMfWord,CmdMfHalfWord,CmdMfByte,CmdEmf,RstCommand,CmdMdWord,CmdMdHalfWord,CmdMdByte,CmdEmd,ScpuMdWord,ScpuMdHalfWord,ScpuMdByte,e2rd_init,e2rd_init,servo_wait_run,trc0329,trc032a,trc032b,trc032c,trc0301,trc0302,trc0303,trc0304,trc0305,trc0340,trc0341,trc0342,trc0343,trc0344,trc0345,trc0346,trc0347,trc0318,trc031b,trc030a,trc030b,trc030f,trc0324,trc0325,trc0326,trc0327,trc0348,trc034b,trc034f,trc0310,trc0311,trc0314,trc0315,trc0316,trc0317,TrcErrCtrl,trc0350,trc0354,trc0355,trc0356,trc0357,trc0359,trc035a,trc035b,trc035c,trc0330,trc0331,trc0332,trc0334,trc0335,trc0374,trc0375,InitSciTsk,InitSciTsk,MachTrx,MachTrx,MachTrx,MachbTrx,MachbTrx,MachbTrx,RttWupNci,RttWupNci,LedManualOut,clr_abz_frc,clr_abz_frc,clr_abz_frc,PVImacParaInit,PVImacParaInit,PVImacParaInit,PcvDtrIni,PcvDtrIni,PcvDtrIni,pcv_ore,SetMsrTapI,pcv_lmc4,pcv_obscnt,pcvs_ilmtsp,pcvs_lmc1,pcvs_ovs1,pcvs_lmc2,pcvs_ovs2,PreSWVcmd,SetE2Ovr,trc030d,SciTxEncInfoPrt3,SciTxEncInfoPrt3",
+                "--parent-func", "abs_conv,adn_est_d,adn_est_v,adn_hpf,alm_axis,alm_ipf,alm_ipm,alm_nr,alm_ovl,alm_psalm,alm_tandem,almc_alm_detail_get,AlmDetailPsSet,ang_command,axf_on_set,axis_cnt,axis_connect_check,axis_connect_fin,axis_dtr_areset,axis_dtr_init,axis_dtr_run,axis_pos_preset,AxisCheck,battery_vdown,CalcCrc,ccd_bpls_make,ccd_chk_para,ccd_conv,ccd_znchk_make,CcdAbsRef,CcdCycErr,CcdMabs,CcdRotNorm,check_base,check_rnobit,check_val,check_val_trc,CheckAddonVersion,CheckReadyOn,CheckScpuVersion,CheckVersion,chk_dport_sts,chk_dtr_cable,ChkHssNum,clamp32_ddifr,ComStoDesStop,cond_dcsl,conv_axf,conv_gk1,conv_gk2,conv_iir,conv_mk,ConvertPrmNo,convFunc,cycle_make,data_make,DataPreset,dcb_dir_set,dcb_zpit_set,DcbEidSet,DcbPtrSet,DcbSet,DcExcitation,DdbHss,DdbMake,detector_type,di_chk,DimCom,DispAlarmNumber,DispChAddr,DispPrmErrNumber,DispScpuAlmNumber,dmsv_make,doorsts_check,DrpCancel,drv_init,dtc_run,DtrPdownReq,e2cont,e2rd_axs_init,e2rd_sys_init,egear_chk,egear_conv,EndMechVibe,err_check,fan_iport_change,fan_stop,FanCommand,FanCtrCmd,FanStsIni,fbk_overrun,fbk2err,FbkCnt,fbkperr,fbkperr_nozp,fbkperr_zp,FbkUpDate,FctwistCmp,fdt_make,fdtexe_set,FillMemory,flash_programing,g0_command,g1_command,g2_command,GearDataAreaChk,GetCswEncId,GetCswSno,GetGapAI,GetGapMsEnc,GetHrVer,GetOsaRng,GetPVmacEnc,gn_init,grid_calc,grid_conv,grid_make,HightCmpCnv,HightInCnv,HightLimit2,HightOutCnv,HitCalibrationChk,hpm_command,hss_alm_chk,hss_port_alm,i_bias,ice_ovl,idetect_const,iecnv,ifb_check,ife_ovl,IirCalcNotch,iloop,imag_control,init_DrvTsk,InitAxisSts,Int_pst,isync,led_ncdl,ledflash,lmc_cmp,lmc3,lmc3cmp_calc,lmcv_fin,LoadMoff,mach_rx_i12,mach_rx_i13,mach_rx_i4,mach_rx_i43,mach_rx_run,MachbRxDrvInfo,MachbRxScpuPrm,MachRegister,MachRxI0,MachRxI2,MachRxI2PsRead,MachRxI2PsWrite,MachRxI2Read,MachRxI2Write,MachRxI3,MachRxI5,MachRxNcdl0103,MachRxNcdl0108,MachRxNcdl0110,MachRxPsPrm,MachRxXregRead,MachTxNcdlInfo,mag_conv,make_flg,make_ncists,MakeKtlc,makests,menc_supwrn,merc_make,mfb_make,model_dirfg,ModelCnt,mp_pon,MpLoop,mscmp_make,msr_command,msrn_mode_off",
             ]
         }
 
