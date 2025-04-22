@@ -169,7 +169,12 @@ LOGGING = {
         # survey
         'Survey': {
             'handlers': ['console', 'file'],
-            'level': 'INFO',  # INFO 以上のログを記録
+            'level': 'DEBUG',  # INFO 以上のログを記録
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['file'],  # 必要なら 'console' も追加
+            'level': 'DEBUG',
             'propagate': False,
         },
     },

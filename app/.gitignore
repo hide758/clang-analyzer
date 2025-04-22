@@ -1,1 +1,3 @@
 clangAnalyzer.xlsx
+*.c
+*.h

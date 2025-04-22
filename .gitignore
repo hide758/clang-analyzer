@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 
 db/var_data
+node_modules

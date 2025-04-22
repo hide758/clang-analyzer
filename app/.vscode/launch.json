@@ -6,13 +6,13 @@
     "configurations": [
         {
             "name": "Python デバッガー: 現在のファイル",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
                 "funcsurvey",
-                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SERVO",
                 "target/usv/srv/valm.c",
             ]
         },
@@ -22,12 +22,28 @@
             "request": "launch",
             "program": "manage.py",
             "console": "integratedTerminal",
+            "justMyCode": false,
             "args": [
                 "funcsurvey",
 //                "-v", "2",
-                "--project", "MDS-E-BD SPINDLE",
-                "--clang-args", "-I target/ansi -I target/usv/inc -D SPINDLE",
-                "target/usv/srv/vomrff.c",
+                "--project", "MDS-E-BD SERVO",
+                "--clang-args", "-I target/ansi -I target/usv/inc -D SERVO",
+                "--remove-path-prefix", "target/usv/",
+                "target/usv/dbg/dbgMain/xtbl.c",
+            ]
+        },
+        {
+            "name": "関数ツリー",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "functree",
+                "--project", "MDS-E-BD SERVO",
+                "--upper", "0",
+                "--lower", "3",
+                "hss_port_alm",
             ]
         },
         {
@@ -48,7 +64,20 @@
             "console": "integratedTerminal",
             "args": [
                 "exportdb",
-                "--project", "MDS-E-BD SPINDLE",
+                "--project", "MDS-E-BD SERVO",
+            ]
+        },
+        {
+            "name": "make stub file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "makestub",
+                "--project", "MDS-E-BD SERVO",
+                "--save-as", "stub",
+                "--parent-func", "abs_conv,adn_est_d,adn_est_v,adn_hpf,alm_axis,alm_ipf,alm_ipm,alm_nr,alm_ovl,alm_psalm,alm_tandem,almc_alm_detail_get,AlmDetailPsSet,ang_command,axf_on_set,axis_cnt,axis_connect_check,axis_connect_fin,axis_dtr_areset,axis_dtr_init,axis_dtr_run,axis_pos_preset,AxisCheck,battery_vdown,CalcCrc,ccd_bpls_make,ccd_chk_para,ccd_conv,ccd_znchk_make,CcdAbsRef,CcdCycErr,CcdMabs,CcdRotNorm,check_base,check_rnobit,check_val,check_val_trc,CheckAddonVersion,CheckReadyOn,CheckScpuVersion,CheckVersion,chk_dport_sts,chk_dtr_cable,ChkHssNum,clamp32_ddifr,ComStoDesStop,cond_dcsl,conv_axf,conv_gk1,conv_gk2,conv_iir,conv_mk,ConvertPrmNo,convFunc,cycle_make,data_make,DataPreset,dcb_dir_set,dcb_zpit_set,DcbEidSet,DcbPtrSet,DcbSet,DcExcitation,DdbHss,DdbMake,detector_type,di_chk,DimCom,DispAlarmNumber,DispChAddr,DispPrmErrNumber,DispScpuAlmNumber,dmsv_make,doorsts_check,DrpCancel,drv_init,dtc_run,DtrPdownReq,e2cont,e2rd_axs_init,e2rd_sys_init,egear_chk,egear_conv,EndMechVibe,err_check,fan_iport_change,fan_stop,FanCommand,FanCtrCmd,FanStsIni,fbk_overrun,fbk2err,FbkCnt,fbkperr,fbkperr_nozp,fbkperr_zp,FbkUpDate,FctwistCmp,fdt_make,fdtexe_set,FillMemory,flash_programing,g0_command,g1_command,g2_command,GearDataAreaChk,GetCswEncId,GetCswSno,GetGapAI,GetGapMsEnc,GetHrVer,GetOsaRng,GetPVmacEnc,gn_init,grid_calc,grid_conv,grid_make,HightCmpCnv,HightInCnv,HightLimit2,HightOutCnv,HitCalibrationChk,hpm_command,hss_alm_chk,hss_port_alm,i_bias,ice_ovl,idetect_const,iecnv,ifb_check,ife_ovl,IirCalcNotch,iloop,imag_control,init_DrvTsk,InitAxisSts,Int_pst,isync,led_ncdl,ledflash,lmc_cmp,lmc3,lmc3cmp_calc,lmcv_fin,LoadMoff,mach_rx_i12,mach_rx_i13,mach_rx_i4,mach_rx_i43,mach_rx_run,MachbRxDrvInfo,MachbRxScpuPrm,MachRegister,MachRxI0,MachRxI2,MachRxI2PsRead,MachRxI2PsWrite,MachRxI2Read,MachRxI2Write,MachRxI3,MachRxI5,MachRxNcdl0103,MachRxNcdl0108,MachRxNcdl0110,MachRxPsPrm,MachRxXregRead,MachTxNcdlInfo,mag_conv,make_flg,make_ncists,MakeKtlc,makests,menc_supwrn,merc_make,mfb_make,model_dirfg,ModelCnt,mp_pon,MpLoop,mscmp_make,msr_command,msrn_mode_off",
             ]
         }
 
